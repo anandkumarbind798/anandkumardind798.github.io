@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Friendship & Love Meter</title>
+
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#1e3c72">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap');
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins', sans-serif;
+}
+
+body{
+  min-height:100vh;
+  background: url("bg.jpg") center/cover no-repeat fixed;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+}
+
+.hearts{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+}
+
+.heart{
+  position:absolute;
+  bottom:-40px;
+  color:#ff1e4d;
+  animation:floatUp linear infinite;
+}
+
+@keyframes floatUp{
+  from{transform:translateY(0);opacity:1;}
+  to{transform:translateY(-110vh);opacity:0;}
+}
+
+.container{
+  width:360px;
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(0px);
+  border-radius:22px;
+  padding:25px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.35);
+  z-index:1;
+}
+
+.credit{
+  font-family:'Great Vibes', cursive;
+  text-align:center;
+  color:#fff;
+  font-size:24px;
+  margin-bottom:8px;
+}
+
+h1{
+  text-align:center;
+  color:#fff;
+  margin-bottom:15px;
+}
+
+.tabs{
+  display:flex;
+  margin-bottom:20px;
+}
+
+.tab{
+  flex:1;
+  text-align:center;
+  padding:10px;
+  cursor:pointer;
+  color:#fff;
+  font-weight:600;
+  border-radius:12px;
+}
+
+.tab.active.friend{background:linear-gradient(135deg,#36d1dc,#5b86e5);}
+.tab.active.love{background:linear-gradient(135deg,#ff0844,#ffb199);}
+
+.form{display:none;}
+.form.active{display:block;}
+
+input{
+  width:100%;
+  padding:12px;
+  border-radius:14px;
+  margin-bottom:12px;
+  background:#000;
+  color:#fff;
+  border:2px solid transparent;
+}
+
+#friend input{border-color:#36d1dc;}
+#love input{border-color:#ff0844;}
+
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:16px;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.btn-friend{background:linear-gradient(135deg,#36d1dc,#5b86e5);}
+.btn-love{background:linear-gradient(135deg,#ff0844,#ffb199);}
+
+.progress-box{
+  margin-top:15px;
+  background:rgba(255,255,255,0.3);
+  border-radius:20px;
+  height:22px;
+  overflow:hidden;
+}
+
+.progress{
+  height:100%;
+  width:0%;
+  transition:width 1.5s ease;
+}
+
+.progress.friend{background:linear-gradient(90deg,#36d1dc,#5b86e5);}
+.progress.love{background:linear-gradient(90deg,#ff0844,#ffb199);}
+
+.result,.message{
+  text-align:center;
+  color:#fff;
+  margin-top:8px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="hearts" id="hearts"></div>
+
+<div class="container">
+  <div class="credit">Designed & Developed by Anand Kumar</div>
+  <h1 id="title">Friendship Meter</h1>
+
+  <div class="tabs">
+    <div class="tab active friend" onclick="switchTab('friend')">Friend</div>
+    <div class="tab" onclick="switchTab('love')">Relationship</div>
+  </div>
+
+  <div id="friend" class="form active">
+    <input id="fname1" placeholder="Friend Name 1">
+    <input id="fname2" placeholder="Friend Name 2">
+    <button class="btn-friend" onclick="calculate('friend')">Check Friendship</button>
+    <div class="progress-box"><div class="progress friend" id="fbar"></div></div>
+    <div class="result" id="fresult"></div>
+    <div class="message" id="fmsg"></div>
+  </div>
+
+  <div id="love" class="form">
+    <input id="lname1" placeholder="Your Name">
+    <input id="lname2" placeholder="Partner Name">
+    <button class="btn-love" onclick="calculate('love')">Check Love</button>
+    <div class="progress-box"><div class="progress love" id="lbar"></div></div>
+    <div class="result" id="lresult"></div>
+    <div class="message" id="lmsg"></div>
+  </div>
+</div>
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./sw.js");
+}
+
+const heartsBox=document.getElementById("hearts");
+setInterval(()=>{
+  const h=document.createElement("div");
+  h.className="heart";
+  h.innerHTML="❤️";
+  h.style.left=Math.random()*100+"%";
+  h.style.fontSize=18+Math.random()*12+"px";
+  h.style.animationDuration=6+Math.random()*4+"s";
+  heartsBox.appendChild(h);
+  setTimeout(()=>h.remove(),10000);
+},500);
+
+function switchTab(type){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active","friend","love"));
+  document.querySelectorAll(".form").forEach(f=>f.classList.remove("active"));
+
+  if(type==="friend"){
+    document.querySelector(".tab:first-child").classList.add("active","friend");
+    friend.classList.add("active");
+    title.innerText="Friendship Meter";
+  }else{
+    document.querySelector(".tab:last-child").classList.add("active","love");
+    love.classList.add("active");
+    title.innerText="Love Meter ❤️";
+  }
+}
+
+function calculate(type){
+  let n1,n2,bar,res;
+  if(type==="friend"){
+    n1=fname1.value; n2=fname2.value;
+    bar=fbar; res=fresult;
+  }else{
+    n1=lname1.value; n2=lname2.value;
+    bar=lbar; res=lresult;
+  }
+
+  if(!n1||!n2){
+    res.innerText="Enter both names 🙂";
+    bar.style.width="0%";
+    return;
+  }
+
+  let sum=0;
+  for(let c of (n1+n2).toLowerCase()) sum+=c.charCodeAt(0);
+  let percent=(sum%51)+50;
+  bar.style.width=percent+"%";
+  res.innerHTML=`Compatibility: <b>${percent}%</b>`;
+}
+</script>
+
+</body>
+</html>
